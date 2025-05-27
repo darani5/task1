@@ -8,6 +8,7 @@ import {
   Pagination,
   Group,
   Modal,
+  Checkbox,
 } from "@mantine/core";
 import {
   useReactTable,
@@ -63,11 +64,30 @@ const updateUser = async ({ id, name, email }) => {
   return res.json();
 };
 
+const exportToCSV = (users) => {
+  const csvRows = [
+    ["ID", "Name", "Email"],
+    ...users.map((user) => [user.id, user.name, user.email])
+  ];
+
+  const csvContent = csvRows.map((row) => row.join(",")).join("\n");
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+
+  const link = document.createElement("a");
+  link.setAttribute("href", url);
+  link.setAttribute("download", "users.csv");
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
+
 export default function UsersTable() {
   const [page, setPage] = useState(1);
   const [pageSize] = useState(6);
   const [globalFilter, setGlobalFilter] = useState("");
   const [sorting, setSorting] = useState([]);
+  const [selectedRowIds, setSelectedRowIds] = useState({});
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [formUser, setFormUser] = useState({ id: null, name: "", email: "" });
@@ -104,8 +124,46 @@ export default function UsersTable() {
     },
   });
 
+  const toggleRow = (id) => {
+    setSelectedRowIds((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  const isAllSelected =
+    data?.data?.length > 0 &&
+    data.data.every((user) => selectedRowIds[user.id]);
+
+  const toggleAllRows = () => {
+    if (isAllSelected) {
+      const newSelection = {};
+      setSelectedRowIds(newSelection);
+    } else {
+      const newSelection = {};
+      data?.data?.forEach((user) => (newSelection[user.id] = true));
+      setSelectedRowIds(newSelection);
+    }
+  };
+
+  const handleBulkDelete = () => {
+    Object.keys(selectedRowIds).forEach((id) => {
+      if (selectedRowIds[id]) deleteMutation.mutate(Number(id));
+    });
+    setSelectedRowIds({});
+  };
+
   const columns = useMemo(
     () => [
+      {
+        id: "select",
+        header: () => (
+          <Checkbox checked={isAllSelected} onChange={toggleAllRows} />
+        ),
+        cell: ({ row }) => (
+          <Checkbox
+            checked={!!selectedRowIds[row.original.id]}
+            onChange={() => toggleRow(row.original.id)}
+          />
+        ),
+      },
       { header: "ID", accessorKey: "id" },
       { header: "Name", accessorKey: "name" },
       { header: "Email", accessorKey: "email" },
@@ -135,7 +193,7 @@ export default function UsersTable() {
         ),
       },
     ],
-    [deleteMutation]
+    [deleteMutation, selectedRowIds, isAllSelected]
   );
 
   const table = useReactTable({
@@ -179,6 +237,16 @@ export default function UsersTable() {
           style={{ flex: 1 }}
         />
         <Button onClick={() => setAddModalOpen(true)}>Add User</Button>
+        <Button
+          onClick={handleBulkDelete}
+          color="red"
+          disabled={Object.keys(selectedRowIds).filter((id) => selectedRowIds[id]).length === 0}
+        >
+          Delete Selected
+        </Button>
+        <Button onClick={() => exportToCSV(data?.data || [])}>
+          Export to CSV
+        </Button>
       </Group>
 
       <Table striped highlightOnHover>
@@ -307,3 +375,4 @@ export default function UsersTable() {
     </>
   );
 }
+
