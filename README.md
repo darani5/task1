@@ -1,12 +1,33 @@
-# React + Vite
+# Full-Stack User Table App
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This is a full-stack user management app with:
 
-Currently, two official plugins are available:
+- ✅ React (Vite) frontend using **Mantine UI**, **TanStack Table**, and **TanStack Query**
+- ✅ Node.js + Express backend
+- ✅ SQLite database
+- ✅ Features: pagination, sorting, global filtering, CRUD (Create, Read, Update, Delete)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## Expanding the ESLint configuration
+## 🚀 Features
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- View paginated list of users
+- Sort users by ID, name, or email
+- Global search across name and email
+- Add new user with ID, name, email
+- Edit existing users
+- Delete one or multiple users
+- SQLite used for local persistent storage
+
+---
+
+## 🧰 Tech Stack
+
+**Frontend:**
+- React (Vite)
+- Mantine UI
+- TanStack Table & Query
+
+**Backend:**
+- Node.js + Express
+- SQLite (via `sqlite3`)
